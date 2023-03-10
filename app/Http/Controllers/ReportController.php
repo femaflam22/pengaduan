@@ -8,25 +8,26 @@ use Illuminate\Support\Facades\Auth;
 use PDF;
 use Excel;
 use App\Exports\ReportsExport;
+use App\Models\Response;
 
 class ReportController extends Controller
 {
     public function detailPDF($id)
     {
-        $data = Report::where('id', $id)->firstOrFail()->toArray();
+        $data = Report::with('response')->where('id', $id)->firstOrFail()->toArray();
         view()->share('report', $data);
-        $pdf = PDF::loadView('print_detail', $data);
+        $pdf = PDF::loadView('print_detail', $data)->setPaper('a4', 'landscape');
         $nameFile = 'pengaduan-' . $id . '.pdf';
         return $pdf->download($nameFile);
     }
 
     public function exportPDF() { 
         // ambil data yg akan ditampilkan pada pdf, bisa juga dengan where atau eloquent lainnya
-        $data = Report::all()->toArray(); 
+        $data = Report::with('response')->get()->toArray(); 
         // kirim data yg diambil kepada view yg akan ditampilkan, kirim dengan inisial 
         view()->share('reports',$data); 
         // panggil view blade yg akan dicetak pdf serta data yg akan digunakan
-        $pdf = PDF::loadView('print', $data); 
+        $pdf = PDF::loadView('print', $data)->setPaper('a4', 'landscape'); 
         // download PDF file dengan nama tertentu
         return $pdf->download('reports-data.pdf'); 
     } 
@@ -51,13 +52,8 @@ class ReportController extends Controller
     //  Request $ request ditambahkan karna pada halaman data ada fitur search nya, dan akan mengambil teks yg diinput search
     public function data(Request $request)
     {
-        // ambil data yg diinput ke input yg name nya search
         $search = $request->search;
-        // where akan mencari data berdasarkan column nama
-        // data yang diambil merupakan data yg 'LIKE' (terdapat) teks yg dimasukin ke input search
-        // contoh : ngisi input search dengan 'fem'
-        // bakal nyari ke db yg column nama nya ada isi 'fem' nya
-        $reports = Report::where('nama', 'LIKE', '%' . $search . '%')->orderBy('created_at', 'DESC')->get();
+        $reports = Report::with('response')->where('nama', 'LIKE', '%' . $search . '%')->orderBy('created_at', 'DESC')->get();
         return view('data', compact('reports'));
     }
 
@@ -189,6 +185,7 @@ class ReportController extends Controller
         $image = public_path('assets/image/'.$data['foto']);
         unlink($image);
         $data->delete();
+        Response::where('report_id', $id)->delete();
         return redirect()->back();
     }
 }

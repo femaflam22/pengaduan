@@ -17,6 +17,8 @@
             <th>Tanggal</th>
             <th>Pengaduan</th>
             <th>Gambar</th>
+            <th>Status Response</th>
+            <th>Pesan Response</th>
         </tr>
         @php $no = 1; @endphp
         @foreach ($reports as $report)
@@ -28,6 +30,20 @@
             <td>{{\Carbon\Carbon::parse($report['created_at'])->format('j F, Y')}}</td>
             <td>{{$report['pengaduan']}}</td>
             <td><img src="assets/image/{{$report['foto']}}" width="80"></td>
+            <td>
+                @if ($report['response'])
+                    {{ $report['response']['status'] }}
+                @else
+                    -
+                @endif
+                </td>
+            <td>
+                @if ($report['response'])
+                    {{ $report['response']['pesan'] }}
+                @else
+                    -
+                @endif
+            </td>
         </tr>
         @endforeach
     </table>

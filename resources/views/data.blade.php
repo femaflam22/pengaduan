@@ -38,6 +38,8 @@
                     <th>Telp</th>
                     <th>Pengaduan</th>
                     <th>Gambar</th>
+                    <th>Status Response</th>
+                    <th>Pesan Response</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -62,13 +64,37 @@
                     {{-- yg ditampilkan tag a dengan $telp (data no_telp yg uda diubah jadi format 628) --}}
                     {{-- %20 fungsinya buat ngasi space --}}
                     {{-- target="_blank" untuk buka di tab baru --}}
-                    <td><a href="https://wa.me/{{$telp}}?text=Hallo,%20{{$report->nama}}%20pengaduan%20anda%20akan%20kami%20cek" target="_blank">{{$telp}}</a></td>
+                    @php
+                    // kalau uda di response data reportnya, cht wa nya data dr response di tampilin
+                        if ($report->response) {
+                            $pesanWA = 'Hallo ' . $report->nama . '!pengaduan anda di ' . $report->response['status'] . '.Berikut pesan untuk anda : ' . $report->response['pesan']; 
+                        }
+                    // kalau belum di response pengaduannya, cht wa nya kaya gini
+                        else {
+                            $pesanWA = 'Belum ada data response!';
+                        }
+                    @endphp
+                    <td><a href="https://wa.me/{{$telp}}?text={{$pesanWA}}" target="_blank">{{$telp}}</a></td>
                         <td>{{$report['pengaduan']}}</td>
                         <td>
                             {{-- menampilkan gambar full layar di tab baru --}}
                             <a href="../assets/image/{{$report->foto}}" target="_blank">
                                 <img src="{{asset('assets/image/'.$report->foto)}}" width="120">
                             </a>
+                        </td>
+                        <td>
+                            @if ($report->response)
+                                {{ $report->response['status'] }}
+                            @else
+                                -
+                            @endif
+                            </td>
+                        <td>
+                            @if ($report->response)
+                                {{ $report->response['pesan'] }}
+                            @else
+                                -
+                            @endif
                         </td>
                         <td style="display: flex; justify-content: center;">
                             <form action="{{route('destroy', $report->id)}}" method="POST">

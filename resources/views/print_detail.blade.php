@@ -15,6 +15,22 @@
         <li style="margin-bottom: 10px">Tanggal Laporan : {{\Carbon\Carbon::parse($report['created_at'])->format('j F, Y')}}</li>
         <li style="margin-bottom: 10px">Isi Pengaduan : {{$report['pengaduan']}}</li>
         <li style="margin-bottom: 10px">Gambar Terkait : <br> <img src="assets/image/{{$report['foto']}}" width="80"></li>
+        <li style="margin-bottom: 10px">
+            Status Response :
+            @if ($report['response'])
+                {{ $report['response']['status'] }}
+            @else
+                -
+            @endif
+        </li>
+        <li style="margin-bottom: 10px">
+            Pesan Response :
+            @if ($report['response'])
+                {{ $report['response']['pesan'] }}
+            @else
+                -
+            @endif
+        </li>
     </ol>
 </body>
 </html>
